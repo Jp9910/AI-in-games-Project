@@ -53,7 +53,7 @@ export class MovingState extends State {
 		if (!controller.moving()) {
 			player.switchState(new IdleState());
 		} else {
-			let force = controller.direction();
+			let force = controller.direction(player);
 			force.setLength(50);
 			player.applyForce(force);
 		

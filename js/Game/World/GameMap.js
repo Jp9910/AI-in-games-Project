@@ -1,9 +1,10 @@
-import { TileNode } from './TileNode.js';
+import { TileNode } from './TileNode';
 import * as THREE from 'three';
 import { MapRenderer } from './MapRenderer';
 import { Graph } from './Graph';
 import { PriorityQueue } from '../../Util/PriorityQueue';
 import { VectorUtil } from '../../Util/VectorUtil';
+import { DungeonGenerator } from './DungeonGenerator';
 
 
 export class GameMap {
@@ -11,11 +12,11 @@ export class GameMap {
 	// Constructor for our GameMap class
 	constructor() {
 
-		this.start = new THREE.Vector3(-25,0,-25);
-
-		this.width = 50;
-		this.depth = 50;
+		this.width = 300;
+		this.depth = 200;
 	
+
+		this.start = new THREE.Vector3(-this.width/2,0,-this.depth/2);
 
 		// We also need to define a tile size 
 		// for our tile based map
@@ -31,18 +32,23 @@ export class GameMap {
 		this.graph = new Graph(this.tileSize, this.cols, this.rows);
 
 		// Create our map renderer
-		this.mapRenderer = new MapRenderer(this.start, this.tileSize, this.cols);
+		this.mapRenderer = new MapRenderer();
 
-		this.flowfield = new Map();
-		this.goal = null;
+
+
 
 	}
 
+	// initialize the GameMap
 	init(scene) {
 		this.scene = scene; 
-		this.graph.initGraph();
+
+		let dungeon = new DungeonGenerator(this);
+		dungeon.generate();
+		this.graph.initGraph(dungeon.grid);
+
 		// Set the game object to our rendering
-		this.gameObject = this.mapRenderer.createRendering(this.graph.nodes);
+		this.gameObject = this.mapRenderer.createRendering(this);
 	}
 
 
@@ -103,8 +109,15 @@ export class GameMap {
 		this.highlight(goal, new THREE.Color(0xffffff));
 	}
 
+	manhattanDistance(node, end) {
+		let nodePos = this.localize(node);
+		let endPos = this.localize(end)
 
+		let dx = Math.abs(nodePos.x - endPos.x);
+		let dz = Math.abs(nodePos.z - endPos.z);
+	 	return dx + dz;
 
+	}
 
 
 	backtrack(start, end, parents) {
@@ -118,19 +131,11 @@ export class GameMap {
 		return path.reverse();
 	}
 
-	manhattanDistance(node, end) {
-		let nodePos = this.localize(node);
-		let endPos = this.localize(end)
-
-		let dx = Math.abs(nodePos.x - endPos.x);
-		let dz = Math.abs(nodePos.z - endPos.z);
-	 	return dx + dz;
-
-	}
 
 	astar(start, end) {
 		let open = new PriorityQueue();
 		let closed = [];
+
 
 		open.enqueue(start, 0);
 
@@ -188,6 +193,8 @@ export class GameMap {
 	}
 
 
+
+	
 }
 
 

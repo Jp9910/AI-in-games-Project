@@ -6,7 +6,7 @@ export class Character {
 	// Character Constructor
 	constructor(mColor) {
 
-		this.size = 2;
+		this.size = 3;
 
 		// Create our cone geometry and material
 		let coneGeo = new THREE.ConeGeometry(this.size/2, this.size, 10);
@@ -27,11 +27,33 @@ export class Character {
 		this.location = new THREE.Vector3(0,0,0);
 		this.velocity = new THREE.Vector3(0,0,0);
 		this.acceleration = new THREE.Vector3(0, 0, 0);
+		this.orientation = new THREE.Vector3(0,0,0);
 
 		this.topSpeed = 5;
 		this.mass = 1;
 		this.frictionMagnitude = 0;
 	}
+
+	setModel(model) {
+		model.position.y = model.position.y+1;
+		
+		// Bounding box for the object
+		var bbox = new THREE.Box3().setFromObject(model);
+
+		// Get the depth of the object for avoiding collisions
+		// Of course we could use a bounding box,
+		// but for now we will just use one dimension as "size"
+		// (this would work better if the model is square)
+		let dz = bbox.max.z-bbox.min.z;
+
+		// Scale the object based on how
+		// large we want it to be
+		let scale = this.size/dz;
+		model.scale.set(scale, scale, scale);
+
+        this.gameObject = new THREE.Group();
+        this.gameObject.add(model);
+    }
 
 	// update character
 	update(deltaTime, gameMap) {
@@ -49,6 +71,7 @@ export class Character {
 			if (this.velocity.x != 0 || this.velocity.z != 0) {
 				let angle = Math.atan2(this.velocity.x, this.velocity.z);
 				this.gameObject.rotation.y = angle;
+				this.orientation = this.velocity.clone();
 			}
 			
 			if (this.velocity.length() > this.topSpeed) {

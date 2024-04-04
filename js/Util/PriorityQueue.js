@@ -90,7 +90,7 @@ export class PriorityQueue {
 	// HINT: this will be the f value!!!
 	enqueue(node, priority) {
 		let data = [node, priority];
-		this.storage[this.storage.length] = data;
+		this.storage.push(data);
 
 		this.heapifyUp(this.storage.length-1);
 	}
@@ -145,13 +145,19 @@ export class PriorityQueue {
 				index = i;
 			}
 		}
-		if (index = -1) {
-			return Error("Node with ID: " + node.id + " cannot be removed as it does not exist");
+		if (index == -1) {
+			return null;
 		}
 		
 		this.storage[index] = this.storage[this.storage.length-1];
 		this.storage.splice(this.storage.length-1, 1);
 		this.heapifyDown(index);
+	}
+
+	log() {
+		for (let n of this.storage) {
+			console.log(this.storage.indexOf(n), n[0].start, n[0].end, n[1]);
+		}
 	}
 
 }

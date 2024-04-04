@@ -4,76 +4,74 @@ import { TileNode } from './TileNode.js'
 
 export class MapRenderer {
 
-	constructor(start, tileSize, cols) {
-
-		this.start = start;
-		this.tileSize = tileSize;
-		this.cols = cols;
-
-		this.groundGeometries = new THREE.BoxGeometry(0,0,0);
-		this.obstacleGeometries = new THREE.BoxGeometry(0,0,0);
-
+	constructor() {
 	
 	}
 
-	createRendering(graph) {
+	createRendering(gameMap) {
+		this.gameMap = gameMap;
+
+		this.groundGeometries = new THREE.BoxGeometry(0,0,0);
+		this.obstacleGeometries = new THREE.BoxGeometry(0,0,0);
+	
 		// Iterate over all of the 
 		// indices in our graph
-		for (let index in graph) {
-			let i = index % this.cols;
-			let j = Math.floor(index/this.cols);
+		for (let node of this.gameMap.graph.nodes) {
+			
+			if (node.type != TileNode.Type.Ground) {
+				this.createTile(node);
+			}
 
-			this.createTile(i, j, graph[index].type);
 
 		}
 
 		let groundMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-		let obstacleMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+		let groundGeometry = this.makeGroundGeometry();
+		let ground = new THREE.Mesh(groundGeometry, groundMaterial);
 
-		let gameObject = new THREE.Group();
-		let ground = new THREE.Mesh(this.groundGeometries, groundMaterial);
+		let obstacleMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff });
 		let obstacles = new THREE.Mesh(this.obstacleGeometries, obstacleMaterial);
 
+		let gameObject = new THREE.Group();
+		
 		gameObject.add(ground);
 		gameObject.add(obstacles);
 
 		return gameObject;
 	}
 
-	createTile(i, j, type) {
+	makeGroundGeometry() {
+		let width = this.gameMap.tileSize * this.gameMap.cols;
+		let height = this.gameMap.tileSize;
+		let depth = this.gameMap.tileSize * this.gameMap.rows;
 
-		let x = (i * this.tileSize) + this.start.x;
-		let y = 0;
-		let z = (j * this.tileSize) + this.start.z;
+		let geometry = new THREE.BoxGeometry(width, height, depth);
+		return geometry;
+	}
 
-		let height = this.tileSize;
-		if (type === TileNode.Type.Obstacle) {
-			height = height * 2;
-		}
+	createTile(node) {
 
+		let x = (node.x * this.gameMap.tileSize) + this.gameMap.start.x;
+		let y = this.gameMap.tileSize;
+		let z = (node.z * this.gameMap.tileSize) + this.gameMap.start.z;
 
-		let geometry = new THREE.BoxGeometry(this.tileSize,
+		let height = this.gameMap.tileSize*2;
+
+		let geometry = new THREE.BoxGeometry(this.gameMap.tileSize,
 											 height, 
-											 this.tileSize);
-		geometry.translate(x + 0.5 * this.tileSize,
-						   y + 0.5 * height,
-						   z + 0.5 * this.tileSize);
+											 this.gameMap.tileSize);
+		geometry.translate(x + 0.5 * this.gameMap.tileSize,
+						   y + 0.5 * this.gameMap.tileSize,
+						   z + 0.5 * this.gameMap.tileSize);
 
-		if (type === TileNode.Type.Obstacle) {
+		if (node.type === TileNode.Type.Obstacle) {
 			this.obstacleGeometries = BufferGeometryUtils.mergeGeometries(
 										[this.obstacleGeometries,
 										geometry]
 									);
-		} else {
-			this.groundGeometries = BufferGeometryUtils.mergeGeometries(
-										[this.groundGeometries,
-										geometry]
-									);
-		}
+		} 
 
 	}
-
-
 
 
 }

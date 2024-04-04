@@ -13,7 +13,7 @@ export class Graph {
 		this.cols = cols;
 		this.rows = rows;
 
-		this.obstacles = [];
+		// this.obstacles = [];
 	}
 
 	length() {
@@ -21,7 +21,8 @@ export class Graph {
 	}
 	
 	// Initialize our game graph
-	initGraph() {
+	initGraph(grid) {
+		this.nodes = [];
 		// Create a new tile node
 		// for each index in the grid
 		for (let j = 0; j < this.rows; j++) {
@@ -30,15 +31,10 @@ export class Graph {
 				let type = TileNode.Type.Ground;
 				let node = new TileNode(this.nodes.length, i, j, type);
 
-				
-				let obs = Math.random();
-				if (obs < 0.3)
-				{
+				if (grid.length != 0 && grid[i][j] == 1) {
 					node.type = TileNode.Type.Obstacle;
-					this.obstacles.push(node);
-				
+					// this.obstacles.push(node);
 				}
-
 				this.nodes.push(node);
 			}
 		}
@@ -99,6 +95,7 @@ export class Graph {
 		}
 		return this.nodes[index];
 	}
+
 
 
 }
