@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { VectorUtil } from '../../Util/VectorUtil.js';
-import { Character } from './Character.js';
+import { Car } from './Car.js';
 
-export class NPC extends Character {
+export class NPC extends Car {
 
 	// Character Constructor
 	constructor(mColor) {

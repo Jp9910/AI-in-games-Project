@@ -12,15 +12,14 @@ export class GameMap {
 	// Constructor for our GameMap class
 	constructor() {
 
-		this.width = 10;
-		this.depth = 10;
-	
+		this.width = 20;
+		this.depth = 20;
 
 		this.start = new THREE.Vector3(-this.width/2,0,-this.depth/2);
 
 		// We also need to define a tile size 
 		// for our tile based map
-		this.tileSize = 5;
+		this.tileSize = 2;
 
 		// Get our columns and rows based on
 		// width, depth and tile size
@@ -33,10 +32,6 @@ export class GameMap {
 
 		// Create our map renderer
 		this.mapRenderer = new MapRenderer();
-
-
-
-
 	}
 
 	// initialize the GameMap
