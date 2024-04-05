@@ -12,8 +12,8 @@ export class GameMap {
 	// Constructor for our GameMap class
 	constructor() {
 
-		this.width = 300;
-		this.depth = 200;
+		this.width = 10;
+		this.depth = 10;
 	
 
 		this.start = new THREE.Vector3(-this.width/2,0,-this.depth/2);
@@ -43,9 +43,10 @@ export class GameMap {
 	init(scene) {
 		this.scene = scene; 
 
-		let dungeon = new DungeonGenerator(this);
-		dungeon.generate();
-		this.graph.initGraph(dungeon.grid);
+		// let dungeon = new DungeonGenerator(this);
+		// dungeon.generate();
+		// this.graph.initGraph(dungeon.grid);
+		this.graph.initGraph();
 
 		// Set the game object to our rendering
 		this.gameObject = this.mapRenderer.createRendering(this);

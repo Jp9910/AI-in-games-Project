@@ -31,10 +31,13 @@ export class Graph {
 				let type = TileNode.Type.Ground;
 				let node = new TileNode(this.nodes.length, i, j, type);
 
-				if (grid.length != 0 && grid[i][j] == 1) {
+				// if (grid.length != 0 && grid[i][j] == 1) {
+				// 	node.type = TileNode.Type.Obstacle;
+				// }
+
+				let obs = Math.random();
+				if (obs < 0)
 					node.type = TileNode.Type.Obstacle;
-					// this.obstacles.push(node);
-				}
 				this.nodes.push(node);
 			}
 		}

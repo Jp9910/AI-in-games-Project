@@ -9,13 +9,13 @@ export class Character {
 		this.size = 3;
 
 		// Create our cone geometry and material
-		let coneGeo = new THREE.ConeGeometry(this.size/2, this.size, 10);
+		let boxGeo = new THREE.BoxGeometry(4, 8, 4);
 		let coneMat = new THREE.MeshStandardMaterial({color: mColor});
 		
 		// Create the local cone mesh (of type Object3D)
-		let mesh = new THREE.Mesh(coneGeo, coneMat);
+		let mesh = new THREE.Mesh(boxGeo, coneMat);
 		// Increment the y position so our cone is just atop the y origin
-		mesh.position.y = mesh.position.y+1;
+		// mesh.position.y = mesh.position.y+1;
 		// Rotate our X value of the mesh so it is facing the +z axis
 		mesh.rotateX(Math.PI/2);
 
@@ -29,7 +29,7 @@ export class Character {
 		this.acceleration = new THREE.Vector3(0, 0, 0);
 		this.orientation = new THREE.Vector3(0,0,0);
 
-		this.topSpeed = 5;
+		this.topSpeed = 15;
 		this.mass = 1;
 		this.frictionMagnitude = 0;
 	}
@@ -84,7 +84,7 @@ export class Character {
 		}
 		
 		// set the game object position
-		this.gameObject.position.set(this.location.x, this.location.y, this.location.z);
+		this.gameObject.position.copy(this.body.position);
 		this.acceleration.multiplyScalar(0);
 	
 	
