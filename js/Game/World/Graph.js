@@ -36,7 +36,7 @@ export class Graph {
 				// }
 
 				let obs = Math.random();
-				if (obs < 0)
+				if (obs < 0.1)
 					node.type = TileNode.Type.Obstacle;
 				this.nodes.push(node);
 			}

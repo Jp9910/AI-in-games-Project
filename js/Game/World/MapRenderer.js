@@ -29,7 +29,7 @@ export class MapRenderer {
 		let groundGeometry = this.makeGroundGeometry();
 		let ground = new THREE.Mesh(groundGeometry, groundMaterial);
 
-		let obstacleMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+		let obstacleMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
 		let obstacles = new THREE.Mesh(this.obstacleGeometries, obstacleMaterial);
 
 		let gameObject = new THREE.Group();

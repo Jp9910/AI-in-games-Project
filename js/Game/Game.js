@@ -60,7 +60,7 @@ export class Game {
         buttons[1].onclick = function () { console.log(game.player); };
         buttons[3].onclick = function () { console.log('butao 3'); };
 
-        this.camera.position.set(10, 10, 10);
+        this.camera.position.set(0, 100, 0);
         this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
         //Create Light
@@ -98,8 +98,9 @@ export class Game {
         this.gameObjects.push(this.npc.gameObject);
         this.gameObjects.forEach((obj) => {
             this.scene.add(obj);
-        })
-        this.scene.add(new THREE.AxesHelper(8));
+        });
+        this.scene.add(new THREE.AxesHelper(50));
+	    this.scene.add(new THREE.GridHelper(50, 50));
     }
 
     initPhysics() {
