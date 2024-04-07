@@ -13,7 +13,7 @@ export class Graph {
 		this.cols = cols;
 		this.rows = rows;
 
-		// this.obstacles = [];
+		this.obstacles = [];
 	}
 
 	length() {
@@ -31,13 +31,16 @@ export class Graph {
 				let type = TileNode.Type.Ground;
 				let node = new TileNode(this.nodes.length, i, j, type);
 
-				// if (grid.length != 0 && grid[i][j] == 1) {
+				if (grid.length != 0 && grid[i][j] == 1) {
+					node.type = TileNode.Type.Obstacle;
+				}
+
+				// let obs = Math.random();
+				// if (obs < 0.1) {
 				// 	node.type = TileNode.Type.Obstacle;
+				// 	this.obstacles.push(node);
 				// }
 
-				let obs = Math.random();
-				if (obs < 0.1)
-					node.type = TileNode.Type.Obstacle;
 				this.nodes.push(node);
 			}
 		}

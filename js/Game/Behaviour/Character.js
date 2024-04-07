@@ -7,6 +7,17 @@ export class Character {
 	constructor() {
 
 		this.size = 3;
+		this.gameObject = new THREE.Group();
+		// Initialize movement variables
+		this.location = new THREE.Vector3(0,0,0);
+		this.velocity = new THREE.Vector3(0,0,0);
+		this.acceleration = new THREE.Vector3(0,0,0);
+		this.orientation = new THREE.Vector3(0,0,0);
+		
+		this.frictionMagnitude = 0;
+		this.topSpeed = 15;
+		this.maxForce = 10;
+		this.mass = 1;
 	}
 
 	setModel(model) {
@@ -56,8 +67,7 @@ export class Character {
 		}
 		
 		// set the game object position
-		this.gameObject.position.copy(this.location.x, this.location.y, this.location.z);
-		console.log("char update");
+		this.gameObject.position.set(this.location.x, this.location.y, this.location.z);
 		this.acceleration.multiplyScalar(0);
 	}
 
@@ -113,6 +123,7 @@ export class Character {
 	// simple physics
 	physics(gameMap) {
 		this.checkEdges(gameMap);
+		
 		// friction
 		let friction = this.velocity.clone();
 		friction.y = 0;

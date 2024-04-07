@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import * as CANNON from 'cannon-es';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GameMap } from './World/GameMap.js';
 import { Character } from './Behaviour/Character.js';
@@ -9,9 +8,7 @@ import { Controller } from './Behaviour/Controller.js';
 import { TileNode } from './World/TileNode.js';
 import { Resources } from '../Util/Resources.js';
 import { Car } from './Behaviour/Car.js';
-import CannonDebugger from 'cannon-es-debugger';
-import { bodyToMesh } from '../Util/three-conversion-utils.js'
-import { Ground } from './Behaviour/Ground.js';
+import { VectorUtil } from '../Util/VectorUtil.js';
 
 export class Game {
     constructor() {
@@ -43,10 +40,14 @@ export class Game {
         // Controller for player
         this.controller = new Controller(document, this.camera);
 
-        this.setupScene();
-        // this.initPhysics();
-        this.animate();
+        // Sphere visual for reference
+        let geometryRef = new THREE.SphereGeometry(0.5, 32, 16);
+        let materialRef = new THREE.MeshStandardMaterial({color: 0x00ff00});
+        this.referenceSphere = new THREE.Mesh(geometryRef, materialRef);
 
+
+        this.setupScene();
+        this.animate();
     }
 
     // Setup our scene
@@ -72,12 +73,6 @@ export class Game {
         this.gameMap = new GameMap();
         this.gameMap.init(this.scene);
         this.scene.add(this.gameMap.gameObject);
-        // let floor = new THREE.Mesh(
-        //     new THREE.BoxBufferGeometry(2000, 3, 2000),
-        //     new THREE.MeshPhongMaterial({ color: 0x1b8f06 })
-        // );
-        // floor.isDraggable = false;
-        // scene.add(floor);
 
         // Create Player
         this.player = new Player(new THREE.Color(0x0000ff));
@@ -86,12 +81,9 @@ export class Game {
 		// this.player.setModel(this.resources.get("sportcar"));
 
         // Create NPC
-        this.npc = new NPC(new THREE.Color(0xff0000));
+        this.npc = new NPC(new THREE.Color(0xff0000), this.gameMap);
         let startNpc = this.gameMap.graph.getRandomEmptyTile();
         this.npc.location = this.gameMap.localize(startNpc);
-
-        // Create ground
-        // this.ground = new Ground();
 
         // Add characters to the scene
         this.gameObjects.push(this.player.gameObject);
@@ -101,27 +93,6 @@ export class Game {
         });
         this.scene.add(new THREE.AxesHelper(50));
 	    this.scene.add(new THREE.GridHelper(50, 50));
-    }
-
-    initPhysics() {
-        // const game = this;
-        const world = new CANNON.World();
-        this.physicsWorld = new CANNON.World({
-            gravity: new CANNON.Vec3(0, -9.82, 0)
-        });
-        console.log("world:");
-        console.log(this.physicsWorld);
-        this.fixedTimeStep = 1.0 / 60.0;
-        this.damping = 0.01;
-
-        // this.physicsWorld.broadphase = new CANNON.NaiveBroadphase();
-        this.physicsWorld.addBody(this.ground.body);
-        this.physicsWorld.addBody(this.player.body)
-        this.physicsWorld.addBody(this.npc.body)
-
-        this.debugRenderer = new CannonDebugger(this.scene, this.physicsWorld, {
-            // color: 0xff0000,
-        });
     }
 
     // animate
@@ -136,8 +107,15 @@ export class Game {
         let deltaTime = this.clock.getDelta();
 
 
-        // let steer = this.npc.followPlayer(this.gameMap, this.player);
+        let steer = this.npc.followPlayer(this.gameMap, this.player);
         // this.npc.applyForce(steer);
+        // let steer = new THREE.Vector3();
+        // for (let i=0; i<this.gameMap.graph.obstacles.length; i++) {
+        //     steer = VectorUtil.add(steer,this.npc.avoidCollision(this.gameMap.graph.obstacles[i], 1));
+		// 	this.referenceSphere.position.set(steer.x, steer.y, steer.z);
+        // }
+        // steer = VectorUtil.setLength(steer,1);
+        this.npc.applyForce(steer);
         this.npc.update(deltaTime, this.gameMap);
         this.player.update(deltaTime, this.gameMap, this.controller);
 

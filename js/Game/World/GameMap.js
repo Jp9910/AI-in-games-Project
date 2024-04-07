@@ -4,7 +4,7 @@ import { MapRenderer } from './MapRenderer';
 import { Graph } from './Graph';
 import { PriorityQueue } from '../../Util/PriorityQueue';
 import { VectorUtil } from '../../Util/VectorUtil';
-import { DungeonGenerator } from './DungeonGenerator';
+import { CellularAutomata } from './CellularAutomata';
 
 
 export class GameMap {
@@ -12,8 +12,8 @@ export class GameMap {
 	// Constructor for our GameMap class
 	constructor() {
 
-		this.width = 40;
-		this.depth = 80;
+		this.width = 80;
+		this.depth = 160;
 
 		this.start = new THREE.Vector3(-this.width/2,0,-this.depth/2);
 
@@ -38,16 +38,58 @@ export class GameMap {
 	init(scene) {
 		this.scene = scene; 
 
-		// let dungeon = new DungeonGenerator(this);
-		// dungeon.generate();
-		// this.graph.initGraph(dungeon.grid);
-		this.graph.initGraph();
+		this.initGraphByCA();
 
 		// Set the game object to our rendering
 		this.gameObject = this.mapRenderer.createRendering(this);
 	}
 
+	initGraphByCA() {
+		let ca = new CellularAutomata(this.cols, this.rows);
+		ca.initCA(8);
+		this.graph.initGraph(ca.grid);
 
+		if (this.validate(this.graph)) {
+			return;
+		}
+		console.log("invalid");
+		this.initGraphByCA();
+
+	}
+
+	validate(graph) {
+		let total = [];
+		let reachable = [];
+
+		for (let n of graph.nodes) {
+			if (n.type == TileNode.Type.Ground) {
+				total.push(n);
+			}
+		}
+
+		let unvisited = [];
+		unvisited.push(graph.getRandomEmptyTile());
+
+		while (unvisited.length > 0) {
+
+			let node = unvisited.shift();
+			reachable.push(node);
+
+			for (let edge of node.edges) {
+				if (!unvisited.includes(edge.node) && 
+					!reachable.includes(edge.node)) {
+					unvisited.push(edge.node);
+				}
+			}
+
+		}
+
+		if (reachable.length == total.length) {
+			return true;
+		}
+		return false;
+
+	}
 
 	// Method to get location from a node
 	localize(node) {
@@ -120,18 +162,20 @@ export class GameMap {
 		let node = end;
 		let path = [];
 		path.push(node);
+		// console.log("backtrack");
+		// console.log(parents);
 		while (node != start) {
+			// console.log("node")
+			// console.log(node)
 			path.push(parents[node.id]);
 			node = parents[node.id];
 		}
 		return path.reverse();
 	}
 
-
 	astar(start, end) {
 		let open = new PriorityQueue();
 		let closed = [];
-
 
 		open.enqueue(start, 0);
 
@@ -189,8 +233,6 @@ export class GameMap {
 	}
 
 
-
-	
 }
 
 
