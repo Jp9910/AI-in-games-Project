@@ -2,7 +2,11 @@ export class TileNode {
 
 	static Type = Object.freeze({
 		Ground: Symbol("ground"),
-		Obstacle: Symbol("obstacle")
+		Obstacle: Symbol("obstacle"),
+		Objective: Symbol("objective"),
+		NextObjective: Symbol("next completed"),
+		ObjectiveCompleted: Symbol("objective completed"),
+		Path: Symbol("path")
 	})
 
 
@@ -16,7 +20,8 @@ export class TileNode {
 
 		this.type = type;
 
-
+		this.gCost = 0;
+		this.parent = null;
 	}
 
 	// Try to add an edge to this node

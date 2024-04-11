@@ -1,10 +1,11 @@
-import { Car } from './Car.js';
+import { Character } from './Character.js';
 import { State } from './State';
 
-export class Player extends Car {
+export class Player extends Character {
 
-	constructor(colour, startPos) {
+	constructor(colour) {
 		super(colour);
+		this.frictionMagnitude = 20;
 
 		// State
 		this.state = new IdleState();
@@ -21,6 +22,8 @@ export class Player extends Car {
 		this.state.updateState(this, controller);
 		super.update(deltaTime, gameMap);
 	}
+
+
 }
 
 export class IdleState extends State {

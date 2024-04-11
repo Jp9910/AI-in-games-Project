@@ -1,27 +1,42 @@
 import * as THREE from 'three';
-import { VectorUtil } from '../../Util/VectorUtil.js';
 
 export class Character {
 
 	// Character Constructor
-	constructor() {
+	constructor(mColor) {
 
-		this.size = 3;
+		this.size = 2;
+
+		// Create our cone geometry and material
+		let vehicleGeo = new THREE.BoxGeometry(this.size*2, this.size*2, this.size*4);
+		let vehicleMat = new THREE.MeshStandardMaterial({color: mColor});
+		
+		// Create the local cone mesh (of type Object3D)
+		let mesh = new THREE.Mesh(vehicleGeo, vehicleMat);
+		
+		// Increment the y position so our cone is just atop the y origin
+		// mesh.position.y = mesh.position.y+1;
+		
+		// Rotate our X value of the mesh so it is facing the +z axis
+		// mesh.rotateX(Math.PI/2);
+
+		// Add our mesh to a Group to serve as the game object
 		this.gameObject = new THREE.Group();
+		this.gameObject.add(mesh);		
+
 		// Initialize movement variables
 		this.location = new THREE.Vector3(0,0,0);
 		this.velocity = new THREE.Vector3(0,0,0);
-		this.acceleration = new THREE.Vector3(0,0,0);
+		this.acceleration = new THREE.Vector3(0, 0, 0);
 		this.orientation = new THREE.Vector3(0,0,0);
-		
-		this.frictionMagnitude = 0;
-		this.topSpeed = 15;
-		this.maxForce = 10;
+
+		this.topSpeed = 20;
 		this.mass = 1;
+		this.frictionMagnitude = 0;
 	}
 
 	setModel(model) {
-		// model.position.y = model.position.y+1;
+		model.position.y = model.position.y+1;
 		
 		// Bounding box for the object
 		var bbox = new THREE.Box3().setFromObject(model);
@@ -45,11 +60,13 @@ export class Character {
 	update(deltaTime, gameMap) {
 
 		this.physics(gameMap);
-
 		// update velocity via acceleration
 		this.velocity.addScaledVector(this.acceleration, deltaTime);
+		
+		
 
 		if (this.velocity.length() > 0) {
+
 			// rotate the character to ensure they face 
 			// the direction of movement
 			if (this.velocity.x != 0 || this.velocity.z != 0) {
@@ -64,11 +81,14 @@ export class Character {
 
 			// update location via velocity
 			this.location.addScaledVector(this.velocity, deltaTime);
+
 		}
 		
 		// set the game object position
 		this.gameObject.position.set(this.location.x, this.location.y, this.location.z);
 		this.acceleration.multiplyScalar(0);
+	
+	
 	}
 
 	// check edges
@@ -123,7 +143,6 @@ export class Character {
 	// simple physics
 	physics(gameMap) {
 		this.checkEdges(gameMap);
-		
 		// friction
 		let friction = this.velocity.clone();
 		friction.y = 0;
