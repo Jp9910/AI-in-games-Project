@@ -95,7 +95,6 @@ export class InRangeToPlayer extends Condition {
 	}
 	run() {
 		let d = this.npc.location.distanceTo(this.player.location);
-		// console.log("distance to player:", d);
 		super.conditional = (d < this.radius);
 		return super.run();
 	}
@@ -112,8 +111,6 @@ export class NpcIsFaster extends Condition {
 	run() {
 		let playerVel = this.player.velocity.length();
 		let npcVel = this.npc.velocity.length();
-		// console.log("npc vel length:", npcVel);
-		// console.log("player vel length:", playerVel);
 		super.conditional = (npcVel > playerVel);
 		return super.run();
 	}
@@ -130,8 +127,6 @@ export class PlayerIsFaster extends Condition {
 	run() {
 		let playerVel = this.player.velocity.length();
 		let npcVel = this.npc.velocity.length();
-		// console.log("npc vel length:", npcVel);
-		// console.log("player vel length:", playerVel);
 		super.conditional = (npcVel < playerVel);
 		return super.run();
 	}
@@ -147,9 +142,7 @@ export class Bump extends BTNode {
 
 	run() {
 		let bumpSteer = this.npc.pursue(this.player, 1); // 1 second prediction
-		// console.log("bumpSteer:", bumpSteer);
 		this.npc.applyForce(bumpSteer);
-		// this.npc.setColour(new THREE.Color(0xff0000));
 		return BTNode.Status.Success;
 	}
 }
@@ -164,7 +157,6 @@ export class Evade extends BTNode {
 
 	run() {
 		let evadeSteer = this.npc.evade(this.player, 1);
-		// console.log("evadeSteer:", evadeSteer);
 		this.npc.applyForce(evadeSteer);
 		return BTNode.Status.Success;
 	}
@@ -173,17 +165,14 @@ export class Evade extends BTNode {
 
 export class FollowTrack extends BTNode {
 
-	constructor(npc, sphere1, sphere2) {
+	constructor(npc) {
 		super();
 		this.npc = npc;
-		// this.sphere1 = sphere1;
-		// this.sphere2 = sphere2;
 	}
 
 	run() {
 		let followSteer = this.npc.followGoals();
 		this.npc.applyForce(followSteer);
-		// console.log("following track:", followSteer)
 		return BTNode.Status.Success;
 	}
 }

@@ -12,23 +12,17 @@ export class MapRenderer {
 	createRendering(gameMap) {
 		this.gameMap = gameMap;
 
-		// let mapGameObject = new THREE.Group();
-
 		let ground = this.createGroundRendering();
 		this.gameMap.scene.add(ground);
-		// mapGameObject.add(ground);
-		
+
 		let obstacles = this.createObstacleRendering();
 		this.gameMap.scene.add(obstacles);
-		// mapGameObject.add(obstacles);
-		
-		this.createObjectivesRendering();
 
-		// return mapGameObject;
+		this.createObjectivesRendering();
 	}
 
 	createGroundRendering() {
-		this.groundGeometries = new THREE.BoxGeometry(0,0,0);
+		this.groundGeometries = new THREE.BoxGeometry(0, 0, 0);
 
 		let width = this.gameMap.tileSize * this.gameMap.cols;
 		let height = this.gameMap.tileSize;
@@ -45,17 +39,17 @@ export class MapRenderer {
 	}
 
 	createObstacleRendering() {
-		this.obstacleGeometries = new THREE.BoxGeometry(0,0,0);
+		this.obstacleGeometries = new THREE.BoxGeometry(0, 0, 0);
 
 		for (let node of this.gameMap.graph.nodes) {
 			if (node.type == TileNode.Type.Obstacle) {
 				let geometry = this.createTileGeometry(node, this.gameMap.tileSize)
-				this.obstacleGeometries = BufferGeometryUtils.mergeGeometries([this.obstacleGeometries,geometry]);
+				this.obstacleGeometries = BufferGeometryUtils.mergeGeometries([this.obstacleGeometries, geometry]);
 			}
 		}
 		let obstacleMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
 		let obstacles = new THREE.Mesh(this.obstacleGeometries, obstacleMaterial);
-		
+
 		let gameObject = new THREE.Group();
 		gameObject.add(obstacles);
 		return gameObject;
@@ -85,20 +79,17 @@ export class MapRenderer {
 		let y = this.gameMap.tileSize;
 		let z = (node.z * this.gameMap.tileSize) + this.gameMap.start.z;
 
-		// let height = this.gameMap.tileSize*2;
-
 		let geometry = new THREE.BoxGeometry(this.gameMap.tileSize,
-											 height, 
-											 this.gameMap.tileSize);
+			height,
+			this.gameMap.tileSize);
 		geometry.translate(x + 0.5 * this.gameMap.tileSize,
-						   y + 0.5 * height,
-						   z + 0.5 * this.gameMap.tileSize);
+			y + 0.5 * height,
+			z + 0.5 * this.gameMap.tileSize);
 
 		return geometry;
 	}
 
 	updateTile(node) {
-		// debugger;
 		if (this.nonTerrainTiles.has(node)) {
 			// remove the previous rendering of the tile
 			this.gameMap.scene.remove(this.nonTerrainTiles.get(node));
@@ -111,7 +102,7 @@ export class MapRenderer {
 
 		// add new rendering for the tile
 		let tileGameObject = new THREE.Group();
-		let geometry = this.createTileGeometry(node,this.objectiveHeight);
+		let geometry = this.createTileGeometry(node, this.objectiveHeight);
 		let material;
 		switch (node.type) {
 			case (TileNode.Type.NextObjective):
@@ -125,16 +116,12 @@ export class MapRenderer {
 				break;
 			case (TileNode.Type.Path):
 				material = new THREE.MeshStandardMaterial({ color: 0x999900 }); //darker yellow
-				geometry = this.createTileGeometry(node,1);
+				geometry = this.createTileGeometry(node, 1);
 				break;
 		}
 		let mesh = new THREE.Mesh(geometry, material);
 		tileGameObject.add(mesh);
 		this.nonTerrainTiles.set(node, tileGameObject);
 		this.gameMap.scene.add(tileGameObject);
-
-		if (false) {
-			throw "Node was not found in nonTerrainTiles map"
-		}
 	}
 }

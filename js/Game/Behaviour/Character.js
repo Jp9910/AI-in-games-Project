@@ -2,33 +2,24 @@ import * as THREE from 'three';
 
 export class Character {
 
-	// Character Constructor
 	constructor(mColor) {
 		this.size = 25;
 
-		// Create our cone geometry and material
 		let vehicleGeo = new THREE.BoxGeometry(4, 4, 8);
 		let vehicleMat = new THREE.MeshStandardMaterial({ color: mColor });
 
-		// Create the local cone mesh (of type Object3D)
 		let mesh = new THREE.Mesh(vehicleGeo, vehicleMat);
 
 		// Increment the y position so our cone is just atop the y origin
 		// mesh.position.y = mesh.position.y+1;
 
-		// Rotate our X value of the mesh so it is facing the +z axis
-		// mesh.rotateX(Math.PI/2);
-
-		// Add our mesh to a Group to serve as the game object
 		this.gameObject = new THREE.Group();
 		this.gameObject.add(mesh);
 
-		// Initialize movement variables
 		this.location = new THREE.Vector3(0, 0, 0);
 		this.velocity = new THREE.Vector3(0, 0, 0);
 		this.acceleration = new THREE.Vector3(0, 0, 0);
 		this.orientation = new THREE.Vector3(0, 0, 0);
-
 		this.topSpeed = 40;
 		this.mass = 1;
 		this.frictionMagnitude = 0;
@@ -37,17 +28,9 @@ export class Character {
 	setModel(model) {
 		model.position.y = model.position.y + 1;
 
-		// Bounding box for the object
 		var bbox = new THREE.Box3().setFromObject(model);
-
-		// Get the depth of the object for avoiding collisions
-		// Of course we could use a bounding box,
-		// but for now we will just use one dimension as "size"
-		// (this would work better if the model is square)
 		let dz = bbox.max.z - bbox.min.z;
 
-		// Scale the object based on how
-		// large we want it to be
 		let scale = this.size / dz;
 		model.scale.set(scale, scale, scale);
 
@@ -55,17 +38,13 @@ export class Character {
 		this.gameObject.add(model);
 	}
 
-	// update character
 	update(deltaTime, gameMap) {
 		this.physics(gameMap);
-		// update velocity via acceleration
 		this.velocity.addScaledVector(this.acceleration, deltaTime);
 
 		if (this.velocity.length() > 0) {
-			// rotate the character to ensure they face
-			// the direction of movement
 			if (Math.abs(this.velocity.x) > 0.1 || Math.abs(this.velocity.z) > 0.1) {
-				console.log("velocity:",this.velocity);
+				console.log("velocity:", this.velocity);
 				let angle = Math.atan2(this.velocity.x, this.velocity.z);
 				this.gameObject.rotation.y = angle;
 				this.orientation = this.velocity.clone();
@@ -73,16 +52,13 @@ export class Character {
 			if (this.velocity.length() > this.topSpeed) {
 				this.velocity.setLength(this.topSpeed);
 			}
-			// update location via velocity
 			this.location.addScaledVector(this.velocity, deltaTime);
 		}
 
-		// set the game object position
 		this.gameObject.position.set(this.location.x, this.location.y, this.location.z);
 		this.acceleration.multiplyScalar(0);
 	}
 
-	// check edges
 	checkEdges(gameMap) {
 		let node = gameMap.quantize(this.location);
 		let nodeLocation = gameMap.localize(node);
@@ -127,11 +103,9 @@ export class Character {
 		this.acceleration.add(force);
 	}
 
-	// simple physics
 	physics(gameMap) {
 		this.checkEdges(gameMap);
 
-		// friction
 		let friction = this.velocity.clone();
 		friction.y = 0;
 		friction.multiplyScalar(-1);

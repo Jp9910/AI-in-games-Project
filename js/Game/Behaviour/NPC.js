@@ -37,18 +37,6 @@ export class NPC extends Character {
 		let evadeAction = new BT.Evade(this, player);
 			evadeSequence.children.push(evadeAction);
 
-
-		// erase this
-			// let geometry = new THREE.SphereGeometry(2, 32, 16);
-			// let material = new THREE.MeshStandardMaterial({color: 0x0000ff})
-			// let sphere1 = new THREE.Mesh(geometry, material);
-			
-			// let geometry2 = new THREE.SphereGeometry(2, 32, 16);
-			// // geometry2.translate(x + 0.5 * 5, y + 0.5 * height, z + 0.5 * 5);
-			// let material2 = new THREE.MeshStandardMaterial({color: 0x00ff00})
-			// let sphere2 = new THREE.Mesh(geometry2, material2);
-			// this.scene.add(sphere1);
-			// this.scene.add(sphere2);
 		let followTrackAction = new BT.FollowTrack(this);
 
 		selector.children.push(bumpSequence);
@@ -101,7 +89,7 @@ export class NPC extends Character {
 		return evade;
 	}
 
-	followGoals(sphere1, sphere2) {
+	followGoals() {
 		let goalNode = this.gameMap.goals[this.currentGoal];
 		let npcNode = this.gameMap.quantize(this.location);
 
@@ -131,23 +119,13 @@ export class NPC extends Character {
 		return this.reynoldsFollow();
 	}
 
-	reynoldsFollow(sphere1, sphere2) {
+	reynoldsFollow() {
 		let steer = new THREE.Vector3(0,0,0);
-
-		// Get the start and end of the segment
 		let start = this.gameMap.localize(this.path[this.segment]);
 		let end = this.gameMap.localize(this.path[this.segment+1]);
-		// console.log("start",start)
-		// console.log("end",end)
 
-		// Check the distance between the
-		// current characters location and the
-		// end of the segment
 		let distance = this.location.distanceTo(end);
-		
-		// if the distance is less than a
-		// certain amount (e.g. path.radius*2)
-		// We want to move onto the next segment
+
 		if (distance < this.reachDistance) {
 			if (this.segment == this.path.length-2) {
 				steer = this.arrive(end, 5);
@@ -155,55 +133,28 @@ export class NPC extends Character {
 				this.segment++;
 			}
 		} else {
-			// Otherwise, we want to use our
-			// path following algorithm
 
-			// Step 1:
-			// Predict a location in the future
 			let prediction = new THREE.Vector3();
 			prediction.addScaledVector(this.velocity, this.reynoldsTime);
 			prediction.add(this.location);
 
-			// Step 2: 
-			// Get the pseudo vector projection of the 
-			// prediction onto the path segment
 			let vectorProjection = this.vectorProjectionForPathFollow(start, end, prediction);
 
-			// Step 3: Set the target to seek
-			// to be a little bit greater than the
-			// vector projection
 			let targetToSeek = vectorProjection.clone();
 			let aLittleBitMore = 3;
 			targetToSeek.setLength(vectorProjection.length() + aLittleBitMore);
 
-			// Step 4: Add the start of the path to the
-			// vectorProjection and targetToSeek
 			vectorProjection.add(start);
 			targetToSeek.add(start);
 
-			// These are just used to show the algorithm
-			// in action, comment them out in a real game
-			// sphere2.position.set(vectorProjection.x, vectorProjection.y+5, vectorProjection.z);
-			// sphere1.position.set(targetToSeek.x, targetToSeek.y+5, targetToSeek.z);
-			
-
-			// Step 5: Check to see if the distance of 
-			// the prediction to the path is
-			// greater than the radius, if so
-			// seek to the target to seek
 			let distanceFromPathToPrediction = prediction.distanceTo(vectorProjection);
 			if (distanceFromPathToPrediction > this.reachDistance/2) {
-				// Step 6: SEEK!
 				steer = this.seek(targetToSeek);
 			}
 		}
-		// console.log("steer:",steer);
 		return steer;
 	}
 
-	// Get the vector projection for path following
-  	// NOTE this is not the mathematically correct
-  	// vector projection formula
   	vectorProjectionForPathFollow(start, end, toProject) {
 		let vectorA = new THREE.Vector3();
 		let vectorB = new THREE.Vector3();
@@ -212,13 +163,7 @@ export class NPC extends Character {
 		vectorB.subVectors(end, start);
 
 		let theta = vectorA.angleTo(vectorB);
-
-		// for the mathematically correct vector projection:
-		// let scalarProjection = vectorA.length() * Math.cos(theta)
-		// We are using the absolute value to keep the character
-		// moving in the correct direction (it's kind of hacky)
 		let scalarProjection = Math.abs(vectorA.length() * Math.cos(theta));
-
 		let vectorProjection = vectorB.clone();
 		vectorProjection.setLength(scalarProjection);
 

@@ -32,8 +32,8 @@ export class Player extends Character {
 		let distanceToGoal = this.location.distanceTo(this.gameMap.localize(goalNode));
 		if (distanceToGoal < this.reachDistance) {
 			this.gameMap.setTileType(goalNode, TileNode.Type.Ground);
-			if (this.currentGoal+1 < this.gameMap.goals.length) {
-				this.gameMap.setTileType(this.gameMap.goals[this.currentGoal+1], TileNode.Type.NextObjective);
+			if (this.currentGoal + 1 < this.gameMap.goals.length) {
+				this.gameMap.setTileType(this.gameMap.goals[this.currentGoal + 1], TileNode.Type.NextObjective);
 				this.currentGoal += 1;
 			} else {
 				this.currentGoal = 0;
@@ -58,7 +58,7 @@ export class IdleState extends State {
 
 export class MovingState extends State {
 
-	enterState(player) {}
+	enterState(player) { }
 
 	updateState(player, controller) {
 		if (!controller.moving()) {
@@ -67,6 +67,6 @@ export class MovingState extends State {
 			let force = controller.direction(player);
 			force.setLength(50);
 			player.applyForce(force);
-		}	
+		}
 	}
 }

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export class Room {
-	
+
 	constructor(x, z, w, d) {
 		this.x = x;
 		this.z = z;
@@ -9,13 +9,11 @@ export class Room {
 		this.d = d;
 
 		this.center = new THREE.Vector2(
-							x+Math.floor(w/2),
-							z+Math.floor(d/2)
-							);
-
-		this.maxX = x+w;
-		this.maxZ = z+d;
-
+			x + Math.floor(w / 2),
+			z + Math.floor(d / 2)
+		);
+		this.maxX = x + w;
+		this.maxZ = z + d;
 	}
 
 	intersects(room) {
@@ -24,5 +22,4 @@ export class Room {
 			(this.z >= (room.z + room.d)) ||
 			((this.z + this.d <= room.z)));
 	}
-
 }

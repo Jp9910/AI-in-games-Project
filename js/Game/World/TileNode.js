@@ -9,8 +9,6 @@ export class TileNode {
 		Path: Symbol("path")
 	})
 
-
-	// Node Constructor
 	constructor(id, x, z, type) {
 		this.id = id;
 		this.x = x;
@@ -24,29 +22,24 @@ export class TileNode {
 		this.parent = null;
 	}
 
-	// Try to add an edge to this node
 	tryAddEdge(node, cost) {
 		if (node.type === TileNode.Type.Ground) {
-			this.edges.push({node: node, cost: cost});
+			this.edges.push({ node: node, cost: cost });
 		}
 	}
 
-	// Test if this node has an edge to the neighbour
 	getEdge(node) {
 		return this.edges.find(x => x.node === node);
 	}
 
-	// Test if edge by direction exists
 	hasEdge(node) {
 		if (this.getEdge(node) === undefined)
 			return false;
 		return true;
-
 	}
 
-	// Test if has edge to a particular location
 	hasEdgeTo(x, z) {
-		let edge = this.getEdgeTo(x,z);
+		let edge = this.getEdgeTo(x, z);
 		if (edge === undefined)
 			return false;
 		return true;
@@ -61,7 +54,6 @@ export class TileNode {
 		return this.type === TileNode.Type.Ground;
 	}
 
-	// Log method
 	log() {
 		let s = this.id + ": \n";
 		for (let index in this.edges) {
