@@ -13,7 +13,7 @@ export class NPC extends Character {
 		this.path = [];
 		this.segment = 0; // refers to the tiles in the path to current goal
 		this.currentGoal = 0; // which is the current goal
-		this.reachDistance = 8;
+		this.reachDistance = 14;
 		this.reynoldsTime = 1;
 		this.scene = scene;
 		this.player = player;

@@ -4,7 +4,6 @@ import { MapRenderer } from './MapRenderer';
 import { Graph } from './Graph';
 import { PriorityQueue } from '../../Util/PriorityQueue';
 import { VectorUtil } from '../../Util/VectorUtil';
-import { DungeonGenerator } from './DungeonGenerator';
 import { CellularAutomata } from './CellularAutomata';
 
 
@@ -88,7 +87,7 @@ export class GameMap {
 
 	initGraphByCA() {
 		let ca = new CellularAutomata(this.cols, this.rows);
-		ca.initCA(8);
+		ca.initCA(10);
 		this.graph.initGraph(ca.grid);
 	}
 

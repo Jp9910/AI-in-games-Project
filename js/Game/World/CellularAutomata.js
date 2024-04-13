@@ -13,7 +13,7 @@ export class CellularAutomata {
 			for (let j = 0; j < this.rows; j++) {
 				// cell at index i, j
 				let r = Math.random();
-				if (r < 0.35) {
+				if (r < 0.34) {
 					this.grid[i][j] = 1;
 				} else {
 					this.grid[i][j] = 0;

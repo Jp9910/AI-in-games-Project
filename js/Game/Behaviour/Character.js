@@ -3,7 +3,7 @@ import * as THREE from 'three';
 export class Character {
 
 	constructor(mColor) {
-		this.size = 25;
+		this.size = 20;
 
 		let vehicleGeo = new THREE.BoxGeometry(4, 4, 8);
 		let vehicleMat = new THREE.MeshStandardMaterial({ color: mColor });
@@ -44,7 +44,6 @@ export class Character {
 
 		if (this.velocity.length() > 0) {
 			if (Math.abs(this.velocity.x) > 0.1 || Math.abs(this.velocity.z) > 0.1) {
-				console.log("velocity:", this.velocity);
 				let angle = Math.atan2(this.velocity.x, this.velocity.z);
 				this.gameObject.rotation.y = angle;
 				this.orientation = this.velocity.clone();
