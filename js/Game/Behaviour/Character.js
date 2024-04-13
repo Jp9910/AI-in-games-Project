@@ -30,7 +30,7 @@ export class Character {
 		this.acceleration = new THREE.Vector3(0, 0, 0);
 		this.orientation = new THREE.Vector3(0,0,0);
 
-		this.topSpeed = 20;
+		this.topSpeed = 40;
 		this.mass = 1;
 		this.frictionMagnitude = 0;
 	}

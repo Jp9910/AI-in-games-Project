@@ -2,7 +2,6 @@ import { Character } from './Character.js';
 import * as THREE from 'three';
 
 export class BTNode {
-
 	static Status = Object.freeze({
 		Success: Symbol("success"),
 		Failure: Symbol("failure"),
@@ -24,7 +23,6 @@ export class BTNode {
 /**
 General Purpose Nodes
 **/
-
 export class Condition extends BTNode {
 
 	constructor() {
@@ -44,7 +42,6 @@ export class Condition extends BTNode {
 		}
 	}
 }
-
 
 export class Sequence extends BTNode {
 
@@ -84,77 +81,109 @@ export class Selector extends BTNode {
 
 /**
 
-Specific Nodes
+Specific Bevahiour Nodes
 
 **/
 
 export class InRangeToPlayer extends Condition {
 
-	constructor(guard, player, r) {
+	constructor(npc, player, r) {
 		super();
-
-		this.guard = guard;
+		this.npc = npc;
 		this.player = player;
 		this.radius = r;
 	}
-
 	run() {
-		let d = this.guard.location.distanceTo(this.player.location);
-		super.conditional = d < this.radius;
+		let d = this.npc.location.distanceTo(this.player.location);
+		// console.log("distance to player:", d);
+		super.conditional = (d < this.radius);
 		return super.run();
 	}
-
 }
 
-export class Attack extends BTNode {
+export class NpcIsFaster extends Condition {
 
-	constructor(guard, player) {
+	constructor(npc, player) {
 		super();
-		this.guard = guard;
+		this.npc = npc;
 		this.player = player;
 	}
 
 	run() {
-		let arrive = this.guard.arrive(this.player.location, 5);
-		this.guard.applyForce(arrive);
-		this.guard.setColour(new THREE.Color(0xff0000));
-		return BTNode.Status.Success;
+		let playerVel = this.player.velocity.length();
+		let npcVel = this.npc.velocity.length();
+		// console.log("npc vel length:", npcVel);
+		// console.log("player vel length:", playerVel);
+		super.conditional = (npcVel > playerVel);
+		return super.run();
 	}
-
 }
 
-export class Seek extends BTNode {
+export class PlayerIsFaster extends Condition {
 
-	constructor(guard, player) {
+	constructor(npc, player) {
 		super();
-		this.guard = guard;
+		this.npc = npc;
 		this.player = player;
 	}
 
 	run() {
-		let seek = this.guard.seek(this.player.location);
-		this.guard.applyForce(seek);
-		this.guard.setColour(new THREE.Color(0xffff00));
-		return BTNode.Status.Success;
+		let playerVel = this.player.velocity.length();
+		let npcVel = this.npc.velocity.length();
+		// console.log("npc vel length:", npcVel);
+		// console.log("player vel length:", playerVel);
+		super.conditional = (npcVel < playerVel);
+		return super.run();
 	}
-
 }
 
-export class Wander extends BTNode {
+export class Bump extends BTNode {
 
-	constructor(guard) {
+	constructor(npc, player) {
 		super();
-		this.guard = guard;
+		this.npc = npc;
+		this.player = player;
 	}
 
 	run() {
-		let wander = this.guard.wander();
-		this.guard.applyForce(wander);
-		this.guard.setColour(new THREE.Color(0x00ff00));
+		let bumpSteer = this.npc.pursue(this.player, 1); // 1 second prediction
+		console.log("bumpSteer:", bumpSteer);
+		this.npc.applyForce(bumpSteer);
+		// this.npc.setColour(new THREE.Color(0xff0000));
+		return BTNode.Status.Success;
+	}
+}
+
+export class Evade extends BTNode {
+
+	constructor(npc, player) {
+		super();
+		this.npc = npc;
+		this.player = player;
+	}
+
+	run() {
+		let evadeSteer = this.npc.evade(this.player, 1);
+		console.log("evadeSteer:", evadeSteer);
+		this.npc.applyForce(evadeSteer);
 		return BTNode.Status.Success;
 	}
 
 }
 
+export class FollowTrack extends BTNode {
 
+	constructor(npc, sphere1, sphere2) {
+		super();
+		this.npc = npc;
+		// this.sphere1 = sphere1;
+		// this.sphere2 = sphere2;
+	}
 
+	run() {
+		let followSteer = this.npc.followGoals();
+		this.npc.applyForce(followSteer);
+		console.log("following track:", followSteer)
+		return BTNode.Status.Success;
+	}
+}

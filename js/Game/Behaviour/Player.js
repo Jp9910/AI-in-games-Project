@@ -22,15 +22,13 @@ export class Player extends Character {
 		this.state.updateState(this, controller);
 		super.update(deltaTime, gameMap);
 	}
-
-
 }
 
 export class IdleState extends State {
 
 	enterState(player) {
-		player.velocity.x = 0;
-		player.velocity.z = 0;
+		// player.velocity.x = 0;
+		// player.velocity.z = 0;
 	}
 
 	updateState(player, controller) {

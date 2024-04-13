@@ -13,14 +13,14 @@ export class GameMap {
 	// Constructor for our GameMap class
 	constructor() {
 
-		this.width = 400;
-		this.depth = 280;
+		this.width = 1000;
+		this.depth = 800;
 
 		this.start = new THREE.Vector3(-this.width/2,0,-this.depth/2);
 
 		// We also need to define a tile size 
 		// for our tile based map
-		this.tileSize = 5;
+		this.tileSize = 10;
 
 		this.goals = [];
 

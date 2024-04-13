@@ -30,14 +30,6 @@ let player;
 
 // npc
 let npc;
-let geometry = new THREE.SphereGeometry(2, 32, 16);
-let material = new THREE.MeshStandardMaterial({color: 0x0000ff})
-let sphere = new THREE.Mesh(geometry, material);
-
-let geometry2 = new THREE.SphereGeometry(2, 32, 16);
-// geometry2.translate(x + 0.5 * 5, y + 0.5 * height, z + 0.5 * 5);
-let material2 = new THREE.MeshStandardMaterial({color: 0x00ff00})
-let sphere2 = new THREE.Mesh(geometry2, material2);
 
 // Setup our scene
 function setup() {
@@ -62,24 +54,24 @@ function setup() {
 	player = new Player(new THREE.Color(0x0000ff));
 
 	// Create npc
-	npc = new NPC(new THREE.Color(0xff0000), gameMap, scene);
+	npc = new NPC(new THREE.Color(0xff0000), gameMap, scene, player);
 
 	// Add characters to the scene
 	scene.add(player.gameObject);
 	scene.add(npc.gameObject);
 
 	// Get a random starting place for characters
-	let startPlayer = gameMap.goals[0];
-	let startNpc = gameMap.graph.getRandomEmptyTile();
-	console.log("startNPC:",startNpc)
+	let startLoc = gameMap.goals[0];
+	// let startNpc = gameMap.graph.getRandomEmptyTile();
+	console.log("startLoc:", startLoc)
 
-	player.location = gameMap.localize(startPlayer);
-	npc.location = gameMap.localize(startNpc);
+	player.location = gameMap.localize(startLoc);
+	npc.location = gameMap.localize(startLoc);
 
 	// scene.add(gameMap.gameObject);
 
-	scene.add(sphere);
-	scene.add(sphere2);
+	// scene.add(sphere);
+	// scene.add(sphere2);
 	//First call to animate
 	animate();
 }
@@ -95,15 +87,13 @@ function animate() {
 	requestAnimationFrame(animate);
 	renderer.render(scene, camera);
 
-	// const oldPlayerPos = new THREE.Vector3();
-	// player.gameObject.getWorldPosition(oldPlayerPos);
+	const oldPlayerPos = new THREE.Vector3();
+	player.gameObject.getWorldPosition(oldPlayerPos);
 
 	let deltaTime = clock.getDelta();
 	player.update(deltaTime, gameMap, controller);
 
-	let steer = npc.followGoals(sphere, sphere2);
-	npc.applyForce(steer);
-	npc.update(deltaTime, gameMap, controller);
+	npc.update(deltaTime, gameMap);
 
 	// spawn a buff every 5 seconds
 	if (spawnBuffClock.getElapsedTime() > 5.0) {
@@ -111,14 +101,16 @@ function animate() {
 		spawnBuffClock.start();
 	}
  
+
+
+	const newPlayerPos = new THREE.Vector3();
+	player.gameObject.getWorldPosition(newPlayerPos);
+	const delta = newPlayerPos.clone().sub(oldPlayerPos);
+	camera.position.add(delta);
+	camera.lookAt(newPlayerPos);
+
 	orbitControls.update();
 	controller.setWorldDirection();
-
-	// const newPlayerPos = new THREE.Vector3();
-	// player.gameObject.getWorldPosition(newPlayerPos);
-	// const delta = newPlayerPos.clone().sub(oldPlayerPos);
-	// camera.position.add(delta);
-	// camera.lookAt(newPlayerPos);
 
 	// // Constant offset between the camera and the target
 	// const cameraOffset = new THREE.Vector3(0.0, 10.0, -15.0);

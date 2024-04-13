@@ -2,23 +2,67 @@ import * as THREE from 'three';
 import { VectorUtil } from '../../Util/VectorUtil.js';
 import { Character } from './Character.js';
 import { TileNode } from '../World/TileNode.js';
+import * as BT from '../Behaviour/BTNode.js';
 
 export class NPC extends Character {
 
-	// Character Constructor
-	constructor(mColor, gameMap, scene) {
+	constructor(mColor, gameMap, scene, player) {
 		super(mColor);
+		this.topSpeed = 50;
 		this.gameMap = gameMap;
 		this.path = [];
-		this.segment = 0; // refers to path to current goal
-		this.currentGoal = 0; // refers to current goal
+		this.segment = 0; // refers to the tiles in the path to current goal
+		this.currentGoal = 0; // which is the current goal
 		this.reachDistance = 8;
 		this.reynoldsTime = 1;
 		this.scene = scene;
+		this.player = player;
+		this.triggerRangeToPlayer = 35;
+
+		let selector = new BT.Selector();
+
+		let bumpSequence = new BT.Sequence();
+		let bumpCondition1 = new BT.InRangeToPlayer(this, player, this.triggerRangeToPlayer);
+			bumpSequence.children.push(bumpCondition1);
+		let bumpCondition2 = new BT.NpcIsFaster(this, player);
+			bumpSequence.children.push(bumpCondition2);
+		let bumpAction = new BT.Bump(this, player);
+			bumpSequence.children.push(bumpAction);
+
+		let evadeSequence = new BT.Sequence();
+		let evadeCondition1 = new BT.InRangeToPlayer(this, player, this.triggerRangeToPlayer);
+			evadeSequence.children.push(evadeCondition1);
+		let evadeCondition2 = new BT.PlayerIsFaster(this, player);
+			evadeSequence.children.push(evadeCondition2);
+		let evadeAction = new BT.Evade(this, player);
+			evadeSequence.children.push(evadeAction);
+
+
+		// erase this
+			// let geometry = new THREE.SphereGeometry(2, 32, 16);
+			// let material = new THREE.MeshStandardMaterial({color: 0x0000ff})
+			// let sphere1 = new THREE.Mesh(geometry, material);
+			
+			// let geometry2 = new THREE.SphereGeometry(2, 32, 16);
+			// // geometry2.translate(x + 0.5 * 5, y + 0.5 * height, z + 0.5 * 5);
+			// let material2 = new THREE.MeshStandardMaterial({color: 0x00ff00})
+			// let sphere2 = new THREE.Mesh(geometry2, material2);
+			// this.scene.add(sphere1);
+			// this.scene.add(sphere2);
+		let followTrackAction = new BT.FollowTrack(this);
+
+		selector.children.push(bumpSequence);
+		selector.children.push(evadeSequence);
+		selector.children.push(followTrackAction);
+
+		this.BT_Root = selector;
 	}
 
+	update(deltaTime, gameMap) {
+		this.BT_Root.run();
+		super.update(deltaTime, gameMap);
+	}
 
-	// Seek steering behaviour
 	seek(target) {
 		let desired = new THREE.Vector3();
 		desired.subVectors(target, this.location);
@@ -31,12 +75,9 @@ export class NPC extends Character {
 		return steer;
 	}
 
-	// Arrive steering behaviour
 	arrive(target, radius) {
 		let desired = VectorUtil.sub(target, this.location);
-
 		let distance = desired.length();
-
 		if (distance < radius) {
 			let speed = (distance/radius) * this.topSpeed;
 			desired.setLength(speed);
@@ -44,10 +85,20 @@ export class NPC extends Character {
 		} else {
 			desired.setLength(this.topSpeed);
 		} 
-
 		let steer = VectorUtil.sub(desired, this.velocity);
-
 		return steer;
+	}
+
+	pursue(character, time) {
+		let prediction = new THREE.Vector3(0,0,0);
+		prediction.addScaledVector(character.velocity, time); // char speed * time
+		prediction.add(character.location); // sum with current location will be the prediction
+		return this.seek(prediction);
+	}
+
+	evade(character, time) {
+		let evade = this.pursue(character, time).multiplyScalar(-1);
+		return evade;
 	}
 
 	followGoals(sphere1, sphere2) {
@@ -58,6 +109,7 @@ export class NPC extends Character {
 		// last goal reached
 		if (npcNode == goalNode && this.currentGoal == this.gameMap.goals.length-1) {
 			console.log("Reached final goal");
+			this.erasePath();
 			return this.arrive(this.gameMap.localize(goalNode), this.gameMap.tileSize/2);
 		}
 		// reached non-last goal, need to update path
@@ -81,7 +133,7 @@ export class NPC extends Character {
 			// console.log("npc node",npcNode);
 			this.paintPath();
 		}
-		return this.reynoldsFollow(sphere1, sphere2);
+		return this.reynoldsFollow();
 	}
 
 	reynoldsFollow(sphere1, sphere2) {
@@ -136,8 +188,8 @@ export class NPC extends Character {
 
 			// These are just used to show the algorithm
 			// in action, comment them out in a real game
-			sphere2.position.set(vectorProjection.x, vectorProjection.y+5, vectorProjection.z);
-			sphere1.position.set(targetToSeek.x, targetToSeek.y+5, targetToSeek.z);
+			// sphere2.position.set(vectorProjection.x, vectorProjection.y+5, vectorProjection.z);
+			// sphere1.position.set(targetToSeek.x, targetToSeek.y+5, targetToSeek.z);
 			
 
 			// Step 5: Check to see if the distance of 
