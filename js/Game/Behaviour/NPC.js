@@ -103,7 +103,6 @@ export class NPC extends Character {
 
 	followGoals(sphere1, sphere2) {
 		let goalNode = this.gameMap.goals[this.currentGoal];
-		// console.log("goal node:",goalNode);
 		let npcNode = this.gameMap.quantize(this.location);
 
 		// last goal reached
@@ -120,18 +119,14 @@ export class NPC extends Character {
 			this.erasePath();
 			this.path = this.gameMap.astar(npcNode, goalNode);
 			this.segment = 1;
-			this.paintPath();
-			//console.log("path:",this.path)
+			// this.paintPath();
 		} 
 		// no current goal
 		else if (this.path.length == 0) {
 			this.path = this.gameMap.astar(npcNode, goalNode);
 			console.log("path:",this.path)
 			this.segment = 1;
-			// console.log("path:",this.path)
-			// console.log("goal node",goalNode);
-			// console.log("npc node",npcNode);
-			this.paintPath();
+			// this.paintPath();
 		}
 		return this.reynoldsFollow();
 	}
@@ -236,12 +231,6 @@ export class NPC extends Character {
 		}
 		
 		for (let node of this.path) {
-			// let geometry = new THREE.BoxGeometry( 5, 1, 5 ); 
-			// let material = new THREE.MeshBasicMaterial( { color: 0xffff00 } ); 
-			// let vec = this.gameMap.localize(node);
-			// geometry.translate(vec.x, vec.y+0.5, vec.z);
-			// let box = new THREE.Mesh( geometry, material ); 
-			// this.scene.add( box );
 			if (node.type === TileNode.Type.Ground)
 				this.gameMap.setTileType(node, TileNode.Type.Path)
 		}

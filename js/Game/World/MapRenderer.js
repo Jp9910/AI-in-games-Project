@@ -5,6 +5,7 @@ import { TileNode } from './TileNode.js'
 export class MapRenderer {
 
 	constructor() {
+		this.objectiveHeight = 15;
 		this.nonTerrainTiles = new Map();
 	}
 
@@ -61,13 +62,19 @@ export class MapRenderer {
 	}
 
 	createObjectivesRendering() {
-		let objectiveMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-		for (let node of this.gameMap.goals) {
+		let objectiveMaterial;
+		for (let nodeIndex in this.gameMap.goals) {
+			// Future goals will be yellow
+			objectiveMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFF00 }); // yellow
+			if (nodeIndex == 0) {
+				// Current goal will be green
+				objectiveMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 }); //green
+			}
 			let objectiveGameObject = new THREE.Group();
-			let objectiveGeometry = this.createTileGeometry(node,1);
+			let objectiveGeometry = this.createTileGeometry(this.gameMap.goals[nodeIndex], this.objectiveHeight);
 			let objectiveMesh = new THREE.Mesh(objectiveGeometry, objectiveMaterial);
 			objectiveGameObject.add(objectiveMesh);
-			this.nonTerrainTiles.set(node, objectiveGameObject); // <-- saves each objective mesh separately according to node
+			this.nonTerrainTiles.set(this.gameMap.goals[nodeIndex], objectiveGameObject); // <-- saves each objective mesh separately according to node
 			this.gameMap.scene.add(objectiveGameObject); // <--- adds each one separately to the scene
 		}
 	}
@@ -104,17 +111,21 @@ export class MapRenderer {
 
 		// add new rendering for the tile
 		let tileGameObject = new THREE.Group();
-		let geometry = this.createTileGeometry(node,1);
+		let geometry = this.createTileGeometry(node,this.objectiveHeight);
 		let material;
 		switch (node.type) {
 			case (TileNode.Type.NextObjective):
 				material = new THREE.MeshStandardMaterial({ color: 0x00ff00 }); //green
 				break;
 			case (TileNode.Type.Objective):
+				material = new THREE.MeshStandardMaterial({ color: 0xFFFF00 }); //yellow
+				break;
+			case (TileNode.Type.ObjectiveCompleted):
 				material = new THREE.MeshStandardMaterial({ color: 0x00AA00 }); //darker green
 				break;
 			case (TileNode.Type.Path):
-				material = new THREE.MeshStandardMaterial({ color: 0xFFFF00 }); //darker green
+				material = new THREE.MeshStandardMaterial({ color: 0x999900 }); //darker yellow
+				geometry = this.createTileGeometry(node,1);
 				break;
 		}
 		let mesh = new THREE.Mesh(geometry, material);

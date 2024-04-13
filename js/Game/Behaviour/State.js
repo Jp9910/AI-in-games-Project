@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 
 export class State {
-	
-
 	// Creating an abstract class in JS
 	// Ensuring enterState and updateState are implemented
 	constructor() {
@@ -22,11 +20,3 @@ export class State {
 	}
   
 }
-
-
-
-
-
-
-
-

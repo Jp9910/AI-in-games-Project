@@ -147,7 +147,7 @@ export class Bump extends BTNode {
 
 	run() {
 		let bumpSteer = this.npc.pursue(this.player, 1); // 1 second prediction
-		console.log("bumpSteer:", bumpSteer);
+		// console.log("bumpSteer:", bumpSteer);
 		this.npc.applyForce(bumpSteer);
 		// this.npc.setColour(new THREE.Color(0xff0000));
 		return BTNode.Status.Success;
@@ -164,7 +164,7 @@ export class Evade extends BTNode {
 
 	run() {
 		let evadeSteer = this.npc.evade(this.player, 1);
-		console.log("evadeSteer:", evadeSteer);
+		// console.log("evadeSteer:", evadeSteer);
 		this.npc.applyForce(evadeSteer);
 		return BTNode.Status.Success;
 	}
@@ -183,7 +183,7 @@ export class FollowTrack extends BTNode {
 	run() {
 		let followSteer = this.npc.followGoals();
 		this.npc.applyForce(followSteer);
-		console.log("following track:", followSteer)
+		// console.log("following track:", followSteer)
 		return BTNode.Status.Success;
 	}
 }

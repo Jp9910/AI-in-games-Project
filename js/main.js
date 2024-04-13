@@ -31,6 +31,12 @@ let player;
 // npc
 let npc;
 
+// Load resources
+let files = [{name: 'lameCar', url:'/models/DeLoreanDMC12.glb'},
+			{name: 'sportCar', url:'/models/sportcar017.glb'}];
+const resources = new Resources(files);
+await resources.loadAll();
+
 // Setup our scene
 function setup() {
 
@@ -51,18 +57,20 @@ function setup() {
 	gameMap.init(scene);
 	
 	// Create Player
-	player = new Player(new THREE.Color(0x0000ff));
+	player = new Player(new THREE.Color(0x0000ff), gameMap);
+	player.setModel(resources.get("sportCar"));
 
 	// Create npc
 	npc = new NPC(new THREE.Color(0xff0000), gameMap, scene, player);
+	npc.setModel(resources.get("lameCar"));
 
 	// Add characters to the scene
 	scene.add(player.gameObject);
 	scene.add(npc.gameObject);
 
 	// Get a random starting place for characters
-	let startLoc = gameMap.goals[0];
-	// let startNpc = gameMap.graph.getRandomEmptyTile();
+	// let startLoc = gameMap.goals[0];
+	let startLoc = gameMap.graph.getRandomEmptyTile();
 	console.log("startLoc:", startLoc)
 
 	player.location = gameMap.localize(startLoc);
@@ -72,6 +80,7 @@ function setup() {
 
 	// scene.add(sphere);
 	// scene.add(sphere2);
+
 	//First call to animate
 	animate();
 }
@@ -91,7 +100,7 @@ function animate() {
 	player.gameObject.getWorldPosition(oldPlayerPos);
 
 	let deltaTime = clock.getDelta();
-	player.update(deltaTime, gameMap, controller);
+	player.update(deltaTime, controller);
 
 	npc.update(deltaTime, gameMap);
 
@@ -101,18 +110,16 @@ function animate() {
 		spawnBuffClock.start();
 	}
  
-
-
-	const newPlayerPos = new THREE.Vector3();
-	player.gameObject.getWorldPosition(newPlayerPos);
-	const delta = newPlayerPos.clone().sub(oldPlayerPos);
-	camera.position.add(delta);
-	camera.lookAt(newPlayerPos);
+	// const newPlayerPos = new THREE.Vector3();
+	// player.gameObject.getWorldPosition(newPlayerPos);
+	// const delta = newPlayerPos.clone().sub(oldPlayerPos);
+	// camera.position.add(delta);
+	// camera.lookAt(newPlayerPos);
 
 	orbitControls.update();
 	controller.setWorldDirection();
 
-	// // Constant offset between the camera and the target
+	// Constant offset between the camera and the target
 	// const cameraOffset = new THREE.Vector3(0.0, 10.0, -15.0);
 	// const objectPosition = new THREE.Vector3();
 	// player.gameObject.getWorldPosition(objectPosition);
