@@ -133,7 +133,12 @@ export class NPC extends Character {
 	reynoldsFollow() {
 		let steer = new THREE.Vector3(0,0,0);
 		let start = this.gameMap.localize(this.path[this.segment]);
-		let end = this.gameMap.localize(this.path[this.segment+1]);
+		let end;
+		if (this.segment+1 < this.path.length) {
+			end = this.gameMap.localize(this.path[this.segment+1]);
+		} else {
+			end = start
+		}
 
 		let distance = this.location.distanceTo(end);
 

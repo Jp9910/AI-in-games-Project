@@ -132,6 +132,9 @@ function setup() {
 
 function spawnRandomBuff() {
 	console.log("buff spawn");
+	let node = gameMap.graph.getRandomEmptyTile();
+	gameMap.setTileType(node, TileNode.Type.Buff);
+	gameMap.buffs.push(node);
 }
 
 function animate() {
@@ -152,8 +155,8 @@ function animate() {
 		alert("You win! Press F5 to play again.");
 	}
 
-	// spawn a buff every 5 seconds
-	if (spawnBuffClock.getElapsedTime() > 5.0) {
+	// spawn a buff every 7 seconds
+	if (spawnBuffClock.getElapsedTime() > 7.0) {
 		spawnRandomBuff();
 		spawnBuffClock.start();
 	}

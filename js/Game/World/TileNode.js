@@ -6,7 +6,8 @@ export class TileNode {
 		Objective: Symbol("future objective"),
 		NextObjective: Symbol("next objective"),
 		ObjectiveCompleted: Symbol("objective completed"),
-		Path: Symbol("path")
+		Path: Symbol("path"),
+		Buff: Symbol("buff")
 	})
 
 	constructor(id, x, z, type) {

@@ -132,10 +132,13 @@ export class MapRenderer {
 				material = new THREE.MeshStandardMaterial({ color: 0xFFFF00 }); //yellow
 				break;
 			case (TileNode.Type.ObjectiveCompleted):
-				material = new THREE.MeshStandardMaterial({ color: 0x00AA00 }); //darker green
+				material = new THREE.MeshStandardMaterial({ color: 0x00AA00 }); //dark green
+				break;
+			case (TileNode.Type.Buff):
+				material = new THREE.MeshStandardMaterial({ color: 0xBB0000 }); //dark red
 				break;
 			case (TileNode.Type.Path):
-				material = new THREE.MeshStandardMaterial({ color: 0xAAAA00 }); //darker yellow
+				material = new THREE.MeshStandardMaterial({ color: 0xAAAA00 }); //dark yellow
 				geometry = this.createTileGeometry(node, 1);
 				break;
 		}
@@ -145,7 +148,7 @@ export class MapRenderer {
 		this.gameMap.scene.add(tileGameObject);
 	}
 
-	// I tried using some flags as models, but they didnt look good
+	// I tried using some flags as models, but they didnt look good...
 	setObjModel(node, model) {
 		for (let nodeIndex in this.gameMap.goals) {
 			let model = this.objModel;

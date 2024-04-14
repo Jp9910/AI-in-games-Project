@@ -18,6 +18,7 @@ export class GameMap {
 		this.tileSize = 10;
 
 		this.goals = [];
+		this.buffs = [];
 
 		this.cols = this.width / this.tileSize;
 		this.rows = this.depth / this.tileSize;
