@@ -53,10 +53,11 @@ const resources = new Resources(files);
 await resources.loadAll();
 
 const buttons = document.getElementById("gui").childNodes;
-buttons[1].onclick = function () { 
+buttons[1].onclick = function () {
 	useThirdPersonCamera = !useThirdPersonCamera;
-	camera.position.set(0,670,0);
-	camera.lookAt(0, 0, 0); 
+	camera.position.set(0, 680, 0);
+	camera.rotation.set(0, 0, 0);
+	camera.lookAt(0, 0, 0);
 };
 
 // buttons[3].onclick = function () { console.log(camera.rotation); };
@@ -66,10 +67,10 @@ function setup() {
 
 	scene.background = new THREE.Color(0x86c0f0);
 	renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+	renderer.setPixelRatio(window.devicePixelRatio);
 	document.body.appendChild(renderer.domElement);
 
-	camera.position.y = 670;
+	camera.position.y = 680;
 	camera.lookAt(0, 0, 0);
 
 	//Create Light
@@ -77,7 +78,7 @@ function setup() {
 	light.position.set(0, 15, 5);
 	light.target.position.set(0, 0, 0);
 	scene.add(light);
-	
+
 	light = new THREE.DirectionalLight(0xffffff, 0.4);
 	light.position.set(-5, 15, 0);
 	light.target.position.set(0, 0, 0);
@@ -94,7 +95,7 @@ function setup() {
 	scene.add(light);
 
 	// light = new THREE.AmbientLight(0xffff00, 0.25);
-    // scene.add(light);
+	// scene.add(light);
 
 	// initialize our gameMap
 	gameMap = new GameMap();
@@ -146,7 +147,6 @@ function animate() {
 		gameOver = true;
 		alert("You lose! Press F5 to try again.");
 	}
-	console.log("player curr goal:",player.currentGoal);
 	if ((player.currentGoal == gameMap.goals.length) && !gameOver) {
 		gameOver = true;
 		alert("You win! Press F5 to play again.");
