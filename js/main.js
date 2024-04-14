@@ -4,13 +4,15 @@ import { GameMap } from './Game/World/GameMap.js';
 import { Character } from './Game/Behaviour/Character.js';
 import { NPC } from './Game/Behaviour/NPC.js';
 import { Player } from './Game/Behaviour/Player.js';
-import { Controller} from './Game/Behaviour/Controller.js';
+import { Controller } from './Game/Behaviour/Controller.js';
 import { TileNode } from './Game/World/TileNode.js';
 import { Resources } from './Util/Resources.js';
+import { ThirdPersonCamera } from './Game/World/ThirdPersonCamera.js';
 
 // Create Scene
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 2000);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+
 const renderer = new THREE.WebGLRenderer();
 
 const orbitControls = new OrbitControls(camera, renderer.domElement);
@@ -31,34 +33,78 @@ let player;
 // npc
 let npc;
 
+// Third person camera
+let tpCamera;
+
+// toggle camera type
+let useThirdPersonCamera = false;
+
+let gameOver = false;
+
 // Load resources
-let files = [{name: 'lameCar', url:'/models/DeLoreanDMC12.glb'},
-			{name: 'sportCar', url:'/models/sportcar017.glb'}];
+let files = [
+	{ name: 'lameCar', url: '/models/DeLoreanDMC12.glb' },
+	{ name: 'sportCar', url: '/models/sportcar017.glb' },
+	{ name: 'whiteFlag', url: '/models/whiteFlag.glb' },
+	{ name: 'greenFlag', url: '/models/green_flag.glb' },
+	{ name: 'yellowFlag', url: '/models/yellow_flag.glb' }
+];
 const resources = new Resources(files);
 await resources.loadAll();
+
+const buttons = document.getElementById("gui").childNodes;
+buttons[1].onclick = function () { 
+	useThirdPersonCamera = !useThirdPersonCamera;
+	camera.position.set(0,670,0);
+	camera.lookAt(0, 0, 0); 
+};
+
+// buttons[3].onclick = function () { console.log(camera.rotation); };
 
 // Setup our scene
 function setup() {
 
-	scene.background = new THREE.Color(0xffffff);
+	scene.background = new THREE.Color(0x86c0f0);
 	renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
 	document.body.appendChild(renderer.domElement);
 
-	camera.position.y = 200;
-	camera.lookAt(0,0,0);
+	camera.position.y = 670;
+	camera.lookAt(0, 0, 0);
 
 	//Create Light
-	let directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-	directionalLight.position.set(0, 5, 5);
-	scene.add(directionalLight);
+	let light = new THREE.DirectionalLight(0xffffff, 0.4);
+	light.position.set(0, 15, 5);
+	light.target.position.set(0, 0, 0);
+	scene.add(light);
+	
+	light = new THREE.DirectionalLight(0xffffff, 0.4);
+	light.position.set(-5, 15, 0);
+	light.target.position.set(0, 0, 0);
+	scene.add(light);
+
+	light = new THREE.DirectionalLight(0xffffff, 0.4);
+	light.position.set(5, 15, 0);
+	light.target.position.set(0, 0, 0);
+	scene.add(light);
+
+	light = new THREE.DirectionalLight(0xffffff, 0.4);
+	light.position.set(0, 15, -5);
+	light.target.position.set(0, 0, 0);
+	scene.add(light);
+
+	// light = new THREE.AmbientLight(0xffff00, 0.25);
+    // scene.add(light);
 
 	// initialize our gameMap
 	gameMap = new GameMap();
-	gameMap.init(scene);
-	
+	gameMap.init(scene, resources);
+
 	// Create Player
 	player = new Player(new THREE.Color(0x0000ff), gameMap);
 	player.setModel(resources.get("sportCar"));
+	// player.gameObject.add(camera);
+	tpCamera = new ThirdPersonCamera(camera, player.gameObject);
 
 	// Create npc
 	npc = new NPC(new THREE.Color(0xff0000), gameMap, scene, player);
@@ -74,12 +120,10 @@ function setup() {
 	console.log("startLoc:", startLoc)
 
 	player.location = gameMap.localize(startLoc);
+	// player.gameObject.rotation = new THREE.Quaternion();
 	npc.location = gameMap.localize(startLoc);
 
 	// scene.add(gameMap.gameObject);
-
-	// scene.add(sphere);
-	// scene.add(sphere2);
 
 	//First call to animate
 	animate();
@@ -89,55 +133,47 @@ function spawnRandomBuff() {
 	console.log("buff spawn");
 }
 
-
-// animate
 function animate() {
-
 	requestAnimationFrame(animate);
 	renderer.render(scene, camera);
-
-	const oldPlayerPos = new THREE.Vector3();
-	player.gameObject.getWorldPosition(oldPlayerPos);
 
 	let deltaTime = clock.getDelta();
 	player.update(deltaTime, controller);
 
 	npc.update(deltaTime, gameMap);
 
+	if (npc.finishedTrack && !player.finishedTrack && !gameOver) {
+		gameOver = true;
+		alert("You lose! Press F5 to try again.");
+	}
+	console.log("player curr goal:",player.currentGoal);
+	if ((player.currentGoal == gameMap.goals.length) && !gameOver) {
+		gameOver = true;
+		alert("You win! Press F5 to play again.");
+	}
+
 	// spawn a buff every 5 seconds
 	if (spawnBuffClock.getElapsedTime() > 5.0) {
 		spawnRandomBuff();
 		spawnBuffClock.start();
 	}
- 
-	// const newPlayerPos = new THREE.Vector3();
-	// player.gameObject.getWorldPosition(newPlayerPos);
-	// const delta = newPlayerPos.clone().sub(oldPlayerPos);
-	// camera.position.add(delta);
-	// camera.lookAt(newPlayerPos);
+
+	if (useThirdPersonCamera) {
+		tpCamera.update(deltaTime);
+	}
 
 	orbitControls.update();
 	controller.setWorldDirection();
-
-	// Constant offset between the camera and the target
-	// const cameraOffset = new THREE.Vector3(0.0, 10.0, -15.0);
-	// const objectPosition = new THREE.Vector3();
-	// player.gameObject.getWorldPosition(objectPosition);
-	// camera.position.copy(objectPosition).add(cameraOffset);
-	// camera.lookAt(objectPosition);
 }
-
-
-setup();
-
 
 function onWindowResize() {
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
 
-  	// Update the renderer size
+	// Update the renderer size
 	renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// Add a resize event listener
+setup();
+
 window.addEventListener("resize", onWindowResize);

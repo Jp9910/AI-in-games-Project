@@ -28,7 +28,7 @@ export class GameMap {
 	}
 
 	// initialize the GameMap
-	init(scene) {
+	init(scene, resources) {
 		this.scene = scene;
 
 		// let dungeon = new DungeonGenerator(this);
@@ -49,7 +49,7 @@ export class GameMap {
 			console.log(element)
 		});
 
-		this.mapRenderer.createRendering(this);
+		this.mapRenderer.createRendering(this, resources.get("yellowFlag"), resources.get("greenFlag"));
 	}
 
 	// Set 1 goal node in each quadrant of map

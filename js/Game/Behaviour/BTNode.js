@@ -100,6 +100,20 @@ export class InRangeToPlayer extends Condition {
 	}
 }
 
+export class PlayerIsFast extends Condition {
+
+	constructor(player) {
+		super();
+		this.player = player;
+	}
+
+	run() {
+		let playerVel = this.player.velocity.length();
+		super.conditional = (playerVel > 4);
+		return super.run();
+	}
+}
+
 export class NpcIsFaster extends Condition {
 
 	constructor(npc, player) {

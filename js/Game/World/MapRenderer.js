@@ -5,12 +5,15 @@ import { TileNode } from './TileNode.js'
 export class MapRenderer {
 
 	constructor() {
-		this.objectiveHeight = 15;
+		this.objectiveHeight = 40;
 		this.nonTerrainTiles = new Map();
 	}
 
-	createRendering(gameMap) {
+	createRendering(gameMap, objModel, currObjModel) {
 		this.gameMap = gameMap;
+		this.objModel = objModel;
+		this.currObjModel = currObjModel;
+		this.setupModels();
 
 		let ground = this.createGroundRendering();
 		this.gameMap.scene.add(ground);
@@ -19,6 +22,20 @@ export class MapRenderer {
 		this.gameMap.scene.add(obstacles);
 
 		this.createObjectivesRendering();
+	}
+
+	setupModels() {
+		this.objModel.position.y = this.objModel.position.y + 1;
+		let bbox = new THREE.Box3().setFromObject(this.objModel);
+		let dz = bbox.max.z - bbox.min.z;
+		let scale = this.tileSize / dz;
+		this.objModel.scale.set(scale, scale, scale);
+
+		this.currObjModel.position.y = this.currObjModel.position.y + 1;
+		bbox = new THREE.Box3().setFromObject(this.currObjModel);
+		dz = bbox.max.z - bbox.min.z;
+		scale = this.tileSize / dz;
+		this.currObjModel.scale.set(scale, scale, scale);
 	}
 
 	createGroundRendering() {
@@ -65,10 +82,13 @@ export class MapRenderer {
 				objectiveMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 }); //green
 			}
 			let objectiveGameObject = new THREE.Group();
+
 			let objectiveGeometry = this.createTileGeometry(this.gameMap.goals[nodeIndex], this.objectiveHeight);
 			let objectiveMesh = new THREE.Mesh(objectiveGeometry, objectiveMaterial);
 			objectiveGameObject.add(objectiveMesh);
+
 			this.nonTerrainTiles.set(this.gameMap.goals[nodeIndex], objectiveGameObject); // <-- saves each objective mesh separately according to node
+
 			this.gameMap.scene.add(objectiveGameObject); // <--- adds each one separately to the scene
 		}
 	}
@@ -115,7 +135,7 @@ export class MapRenderer {
 				material = new THREE.MeshStandardMaterial({ color: 0x00AA00 }); //darker green
 				break;
 			case (TileNode.Type.Path):
-				material = new THREE.MeshStandardMaterial({ color: 0x999900 }); //darker yellow
+				material = new THREE.MeshStandardMaterial({ color: 0xAAAA00 }); //darker yellow
 				geometry = this.createTileGeometry(node, 1);
 				break;
 		}
@@ -123,5 +143,18 @@ export class MapRenderer {
 		tileGameObject.add(mesh);
 		this.nonTerrainTiles.set(node, tileGameObject);
 		this.gameMap.scene.add(tileGameObject);
+	}
+
+	// I tried using some flags as models, but they didnt look good
+	setObjModel(node, model) {
+		for (let nodeIndex in this.gameMap.goals) {
+			let model = this.objModel;
+			if (nodeIndex == 0)
+				model = this.currObjModel;
+			let objectiveGameObject = new THREE.Group();
+			objectiveGameObject.add(model);
+			this.nonTerrainTiles.set(this.gameMap.goals[nodeIndex], objectiveGameObject);
+			this.gameMap.scene.add(objectiveGameObject);
+		}
 	}
 }

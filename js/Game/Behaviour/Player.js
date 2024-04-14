@@ -8,8 +8,10 @@ export class Player extends Character {
 		super(colour);
 		this.gameMap = gameMap;
 		this.currentGoal = 0;
+		this.topSpeed = 55;
 		this.reachDistance = 14;
 		this.frictionMagnitude = 20;
+		this.finishedTrack = false;
 
 		// State
 		this.state = new IdleState();
@@ -28,16 +30,21 @@ export class Player extends Character {
 	}
 
 	updateGoal() {
+		if (this.currentGoal == this.gameMap.goals.length) {
+			// already finished
+			return;
+		}
 		let goalNode = this.gameMap.goals[this.currentGoal];
 		let distanceToGoal = this.location.distanceTo(this.gameMap.localize(goalNode));
 		if (distanceToGoal < this.reachDistance) {
 			this.gameMap.setTileType(goalNode, TileNode.Type.Ground);
-			if (this.currentGoal + 1 < this.gameMap.goals.length) {
+			if (this.currentGoal+1 < this.gameMap.goals.length) {
 				this.gameMap.setTileType(this.gameMap.goals[this.currentGoal + 1], TileNode.Type.NextObjective);
-				this.currentGoal += 1;
 			} else {
-				this.currentGoal = 0;
+				// Reached final goal
+				this.finishedTrack = true;
 			}
+			this.currentGoal += 1;
 		}
 	}
 }

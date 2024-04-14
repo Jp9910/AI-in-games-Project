@@ -20,7 +20,7 @@ export class Character {
 		this.velocity = new THREE.Vector3(0, 0, 0);
 		this.acceleration = new THREE.Vector3(0, 0, 0);
 		this.orientation = new THREE.Vector3(0, 0, 0);
-		this.topSpeed = 40;
+		this.topSpeed = 50;
 		this.mass = 1;
 		this.frictionMagnitude = 0;
 	}
@@ -43,7 +43,7 @@ export class Character {
 		this.velocity.addScaledVector(this.acceleration, deltaTime);
 
 		if (this.velocity.length() > 0) {
-			if (Math.abs(this.velocity.x) > 0.1 || Math.abs(this.velocity.z) > 0.1) {
+			if (Math.abs(this.velocity.x) > 0.14 || Math.abs(this.velocity.z) > 0.14) {
 				let angle = Math.atan2(this.velocity.x, this.velocity.z);
 				this.gameObject.rotation.y = angle;
 				this.orientation = this.velocity.clone();

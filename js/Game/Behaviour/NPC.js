@@ -8,16 +8,17 @@ export class NPC extends Character {
 
 	constructor(mColor, gameMap, scene, player) {
 		super(mColor);
-		this.topSpeed = 50;
+		this.topSpeed = 55;
 		this.gameMap = gameMap;
 		this.path = [];
 		this.segment = 0; // refers to the tiles in the path to current goal
 		this.currentGoal = 0; // which is the current goal
-		this.reachDistance = 14;
+		this.reachDistance = 10;
 		this.reynoldsTime = 1;
 		this.scene = scene;
 		this.player = player;
 		this.triggerRangeToPlayer = 35;
+		this.finishedTrack = false;
 
 		let selector = new BT.Selector();
 
@@ -26,6 +27,8 @@ export class NPC extends Character {
 			bumpSequence.children.push(bumpCondition1);
 		let bumpCondition2 = new BT.NpcIsFaster(this, player);
 			bumpSequence.children.push(bumpCondition2);
+		let bumpCondition3 = new BT.PlayerIsFast(player);
+			bumpSequence.children.push(bumpCondition3);
 		let bumpAction = new BT.Bump(this, player);
 			bumpSequence.children.push(bumpAction);
 
@@ -34,6 +37,8 @@ export class NPC extends Character {
 			evadeSequence.children.push(evadeCondition1);
 		let evadeCondition2 = new BT.PlayerIsFaster(this, player);
 			evadeSequence.children.push(evadeCondition2);
+		let evadeCondition3 = new BT.PlayerIsFast(player);
+			evadeSequence.children.push(evadeCondition3);
 		let evadeAction = new BT.Evade(this, player);
 			evadeSequence.children.push(evadeAction);
 
@@ -60,7 +65,8 @@ export class NPC extends Character {
 		steer.subVectors(desired, this.velocity);
 
 	
-		return steer;
+		return steer.multiplyScalar(2); 
+		// multiply by 2 to make the npc steer faster
 	}
 
 	arrive(target, radius) {
@@ -94,27 +100,32 @@ export class NPC extends Character {
 		let npcNode = this.gameMap.quantize(this.location);
 
 		// last goal reached
-		if (npcNode == goalNode && this.currentGoal == this.gameMap.goals.length-1) {
+		let distanceToGoal = this.location.distanceTo(this.gameMap.localize(goalNode));
+		if (distanceToGoal < this.reachDistance && this.currentGoal == this.gameMap.goals.length-1) {
 			console.log("Reached final goal");
+			if (!this.player.won) {
+				this.finishedTrack = true;
+			}
 			this.erasePath();
 			return this.arrive(this.gameMap.localize(goalNode), this.gameMap.tileSize/2);
 		}
 		// reached non-last goal, need to update path
-		else if (npcNode == goalNode) {
+		else if (distanceToGoal < this.reachDistance) {
 			console.log("Reached current goal. Go to next goal node");
 			this.currentGoal += 1;
 			goalNode = this.gameMap.goals[this.currentGoal]
 			this.erasePath();
 			this.path = this.gameMap.astar(npcNode, goalNode);
+			console.log("path:",this.path)
 			this.segment = 1;
-			// this.paintPath();
+			this.paintPath();
 		} 
 		// no current goal
 		else if (this.path.length == 0) {
 			this.path = this.gameMap.astar(npcNode, goalNode);
 			console.log("path:",this.path)
 			this.segment = 1;
-			// this.paintPath();
+			this.paintPath();
 		}
 		return this.reynoldsFollow();
 	}
